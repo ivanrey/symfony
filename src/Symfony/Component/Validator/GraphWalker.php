@@ -165,12 +165,20 @@ class GraphWalker
 
         $validator->initialize($this->context);
 
-		if (!$validator->isValid($value, $constraint)) {
-				$this->context->addViolation(
-						$validator->getMessageTemplate(),
-						$validator->getMessageParameters(),
-						$value
-				);
-		}
+        try{
+            if (!$validator->isValid($value, $constraint)) {
+                    $this->context->addViolation(
+                            $validator->getMessageTemplate(),
+                            $validator->getMessageParameters(),
+                            $value
+                    );
+            }
+        }catch (UnexpectedTypeException $exception) {
+            $this->context->addViolation(
+                    'This value should be of type {{ type }}',
+                    array('type'=>$exception->getExpectedType()),
+                    $value
+            );
+        }
     }
 }
